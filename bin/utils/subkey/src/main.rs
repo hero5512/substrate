@@ -231,17 +231,17 @@ fn get_app<'a, 'b>(usage: &'a str) -> App<'a, 'b> {
 		])
 }
 
-fn main() {
+fn main() -> Result<(), Error> {
 	let usage = get_usage();
 	let matches = get_app(&usage).get_matches();
 
 	if matches.is_present("ed25519") {
-		return execute_proc::<Ed25519>(matches);
+		return execute::<Ed25519>(matches);
 	}
 	if matches.is_present("secp256k1") {
-		return execute_proc::<Ecdsa>(matches)
+		return execute::<Ecdsa>(matches)
 	}
-	return execute_proc::<Sr25519>(matches)
+	return execute::<Sr25519>(matches)
 }
 
 #[derive(Debug, derive_more::Display, derive_more::From)]
@@ -332,7 +332,7 @@ where
 				.value_of("pattern")
 				.map(str::to_string)
 				.unwrap_or_default();
-			let result = vanity::generate_key::<C>(&desired).expect("Key generation failed");
+			let result = vanity::generate_key::<C>(&desired)?;
 			let formated_seed = format_seed::<C>(result.seed);
 			C::print_from_uri(&formated_seed, None, maybe_network);
 		}

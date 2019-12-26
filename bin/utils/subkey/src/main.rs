@@ -411,8 +411,7 @@ fn read_message_from_stdin(should_decode: bool) -> Result<Vec<u8>, Error> {
 	let mut message = vec![];
 	stdin()
 		.lock()
-		.read_to_end(&mut message)
-		.expect("Error reading from stdin");
+		.read_to_end(&mut message)?;
 	if should_decode {
 		message = decode_hex(&message)?;
 	}
@@ -598,8 +597,8 @@ mod tests {
 
 		let matches = app.clone().get_matches_from(arg_vec);
 		let matches = matches.subcommand().1.unwrap();
-		let mnemonic = generate_mnemonic(matches)?;
-
+		let mnemonic = generate_mnemonic(matches).expect("generate failed");
+		
 		let (pair, seed) =
 			<<CryptoType as Crypto>::Pair as Pair>::from_phrase(mnemonic.phrase(), password)
 				.unwrap();
